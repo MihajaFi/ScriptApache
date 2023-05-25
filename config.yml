@@ -1,0 +1,32 @@
+- name: Virtual Host Apache 
+  hosts: localHost
+  become: true
+  vars:
+    apache_port: 80
+
+   
+  tasks:
+   - name: Generate a domainName
+     script: script.js
+     register: script_out
+
+   - name: 
+     file:
+       path: "var/www/{{ domainName }}"
+       state: directory
+     loop: {{ script_out.stdout_lines }}
+   
+
+    
+      notify: Restart Apache2
+
+    - name: Enable virtual hosts
+      command: a2ensite "{{ domainName }}"
+     
+      notify: Restart Apache2
+
+  handlers:
+    - name: Restart Apache2
+      service:
+        name: apache2
+        state: restarted
