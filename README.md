@@ -6,7 +6,7 @@
 Ansible scripts to generate a domaine name 
 </p>
 
-<div style="background-color:  rgba(11, 252, 172, 0.137);
+<div style="background-color:  ;
             padding-inline:20vw;
             padding-bottom: 20px;">
 <br> 
@@ -17,17 +17,30 @@ Ansible scripts to generate a domaine name
 ## System requirements
 > Before using this project, make sure you have the following:
 
-- You need to install Apache and Ansible 
+- You need to install Apache 
+ ```sh
+  $ sudo apt  install apache2
 
-    ## $ sudo apt  install apache2 
-    ## $ sudo apt  install ansible
+ ```
+   ## After install ansible
+ ```sh
+  $ sudo apt install ansible
+```
+
+   
 -Verify your ansible version  
-  ## ansible --version 
+  ```sh
+  $ ansible --version
+   ```
+- After your installation of apache2 you need to enable your site (see the script ) .
 
 
 
 ## Use
-- Clone this repository on your server.
+```sh
+git clone https://github.com/MihajaFi/ScriptApache.git
+```
+
 - Edit the hosts file to add the ip of your server.
 
 

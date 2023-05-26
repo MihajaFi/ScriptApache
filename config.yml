@@ -1,32 +1,58 @@
-- name: Virtual Host Apache 
-  hosts: localHost
-  become: true
-  vars:
-    apache_port: 80
-
-   
+---
+- name: Créer et configurer les Virtual Hosts
+  hosts: localhost
+  become: yes
   tasks:
-   - name: Generate a domainName
-     script: script.js
-     register: script_out
+    - name: Créer le dossier du Virtual Host
+      file:
+        path: "/var/www/{{ item.name }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: 0755
+      loop:
+        - { name: "www.hei.school" }
+        - { name: "api.hei.school" }
+        - { name: "front.hei.school" }
+        - { name: "back.hei.school" }
+       
 
-   - name: 
-     file:
-       path: "var/www/{{ domainName }}"
-       state: directory
-     loop: {{ script_out.stdout_lines }}
-   
+    - name: Copier le fichier de configuration du Virtual Host
+      template:
+        src: /virtualhost.conf.j2
+        dest: "/etc/apache2/sites-available/{{ item.name }}.conf"
+        owner: root
+        group: root
+        mode: 0644
+      loop:
+        - { name: "www.hei.school" }
+        - { name: "api.hei.school" }
+        - { name: "front.hei.school" }
+        - { name: "back.hei.school" }
 
-    
-      notify: Restart Apache2
+    - name: Vérifier si le Virtual Host est activé
+      stat:
+        path: "/etc/apache2/sites-enabled/{{ item.name }}.conf"
+      loop:
+        - { name: "www.hei.school" }
+        - { name: "api.hei.school" }
+        - { name: "front.hei.school" }
+        - { name: "back.hei.school" }
+      register: vh_enabled
+      changed_when: false
 
-    - name: Enable virtual hosts
-      command: a2ensite "{{ domainName }}"
-     
-      notify: Restart Apache2
+    - name: Activer le Virtual Host
+      command: a2ensite {{ item.name }}.conf
+      loop:
+        - { name: "www.hei.school" }
+        - { name: "api.hei.school" }
+        - { name: "front.hei.school" }
+        - { name: "back.hei.school" }
+      notify:
+        - Redémarrer Apache
+      when: not vh_enabled.stat.exists
 
-  handlers:
-    - name: Restart Apache2
+    - name: Redémarrer Apache
       service:
         name: apache2
         state: restarted
